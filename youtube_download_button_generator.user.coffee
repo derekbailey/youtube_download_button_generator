@@ -21,7 +21,7 @@ getVideoUrls = ->
   json = JSON.parse(data)
   param = json.args.url_encoded_fmt_stream_map
   itags = '38 46 37 84 22 45 10 85 35 44 18 34 10 10 82 43 6 36 83 5 17 13'.split(/\s/)
-  itagOrder = []
+  itagOrder = {}
   for val, i in itags
     itagOrder[val] = i
   param.split(',').map (val) ->
