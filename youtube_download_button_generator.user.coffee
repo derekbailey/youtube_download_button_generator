@@ -1,3 +1,14 @@
+
+###
+// ==UserScript==
+// @name        Youtube Download Button Generator
+// @description Youtube Download Button Generator
+// @namespace   http://github.com/derekbailey
+// @include     http://www.youtube.com/watch*
+// @version     0.1
+// ==/UserScript==
+###
+
 getTitle = ->
   document.querySelector('h1').textContent.replace(/^\s*|\s*$/g, '')
 
@@ -9,23 +20,26 @@ getVideoUrls = ->
   data = document.querySelector('html').textContent.match(reg)[2].replace(/;$/, '')
   json = JSON.parse(data)
   param = json.args.url_encoded_fmt_stream_map
-  itagOrder =
-    38: 0,
-    37: 1,
-    22: 2,
-    35: 3,
-    34: 4
+  itags = '38 46 37 84 22 45 10 85 35 44 18 34 10 10 82 43 6 36 83 5 17 13'.split(/\s/)
+  itagOrder = []
+  for val, i in itags
+    itagOrder[val] = i
   param.split(',').map (val) ->
     itag: parseInt(val.match(/&?itag=([0-9]+)&?/)[1]),
     url: unescape(val.split(/&?url=(.*)&?/)[1]).replace('sig', 'signature'),
     type: unescape(val).split(/&?type=/)[1].split(/&/)[0].replace(/video\/|x-/g, '').split(/;/)[0],
     quality: val.match(/&quality=(.*)&?/)[1]
   .sort (a, b) ->
-    if itagOrder[a.itag] == undefined
-      a.itag = 5
-    if itagOrder[b.itag] == undefined
-      b.itag = 5
+    if itagOrder[a.itag] is undefined
+      a.itag = itags.length
+    if itagOrder[b.itag] is undefined
+      b.itag = itags.length
     itagOrder[a.itag] - itagOrder[b.itag]
+
+###
+console.log(getVideoUrls());
+###
+
 
 ###
 createButton = (text, link, target) ->
@@ -66,9 +80,18 @@ createSelectButton = (vals) ->
 
 main = ->
   vals = getVideoUrls().map (val) ->
-    text: 'Download(' + val.type + ')',
+    text: val.type + '(' + val.quality + ')',
     link: val.url + '&title=' + encodeURIComponent getTitle()
 
   createSelectButton(vals)
 
 main()
+
+
+
+
+
+
+
+
+
