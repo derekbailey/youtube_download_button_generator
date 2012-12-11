@@ -1,9 +1,11 @@
 
 # Youtube Download Button Generator
-
 Greasemonkey
 
 ## Screenshot
+![screenshot](http://gyazo.com/ef509e97c7370be11d8362162cbb2da3.png)
 
-![screenshot](http://gyazo.com/8b3b833e8bc5480a193e4849c5dc6b0c.png)
+## Log
+- (ver0.2) correnpods to the update of Decenber 2012
+- (ver0.1) first
 
