@@ -5,7 +5,7 @@
 // @description Youtube Download Button Generator
 // @namespace   http://github.com/derekbailey
 // @include     http://www.youtube.com/watch*
-// @version     0.1
+// @version     0.2
 // ==/UserScript==
 ###
 
@@ -60,8 +60,9 @@ createButton = (text, link, target) ->
 
 createSelectButton = (vals) ->
   select = document.createElement('select')
-  select.style.verticalAlign = 'top'
+  select.className = 'yt-uix-button'
   select.onchange = ->
+    this.options[this.selectedIndex].textContent = "Download..."
     location.href = this.value
 
   option = document.createElement('option')
@@ -75,7 +76,7 @@ createSelectButton = (vals) ->
     option.textContent = val.text
     select.appendChild(option)
 
-  elm = document.querySelector('#watch-actions')
+  elm = document.querySelector('#watch7-secondary-actions')
   elm.appendChild(select)
 
 main = ->
@@ -86,12 +87,4 @@ main = ->
   createSelectButton(vals)
 
 main()
-
-
-
-
-
-
-
-
 
