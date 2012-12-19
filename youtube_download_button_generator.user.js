@@ -39,7 +39,7 @@
         itag: parseInt(val.match(/&?itag=([0-9]+)&?/)[1]),
         url: unescape(val.split(/&?url=(.*)&?/)[1]).replace('sig', 'signature'),
         type: unescape(val).split(/&?type=/)[1].split(/&/)[0].replace(/video\/|x-/g, '').split(/;/)[0],
-        quality: val.match(/&quality=(.*)&?/)[1]
+        quality: val.split(/&quality=/)[1].split(/&/)[0]
       };
     }).sort(function(a, b) {
       if (itagOrder[a.itag] === void 0) {

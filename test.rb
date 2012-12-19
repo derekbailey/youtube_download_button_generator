@@ -4,7 +4,8 @@ require 'json'
 require 'uri'
 require 'pp'
 
-VIDEO = 'http://www.youtube.com/watch?v=79vtRZSLvfw'
+#VIDEO = 'http://www.youtube.com/watch?v=79vtRZSLvfw'
+VIDEO = 'http://www.youtube.com/watch?v=fezCVFzERac'
 
 def html
   open(VIDEO).read
@@ -23,7 +24,7 @@ def param
       itag: val.match(/&?itag=([0-9]+)&?/)[1].to_i,
       url: URI.decode(val.split(/&?url=(.*)&?/)[1]).gsub('sig', 'signature'),
       type: URI.decode(val).split(/&?type=/)[1].split(/&/)[0].gsub(/video\/|x-/, '').split(/;/)[0],
-      quality: val.match(/&quality=(.*)&?/)[1]
+      quality: val.split(/&quality=/)[1].split(/&/)[0]
     }
   }
 end
