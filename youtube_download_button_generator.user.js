@@ -12,36 +12,50 @@
 
 
 (function() {
-  var createSelectButton, getMp3Url, getTitle, getVideoUrls, main;
+  var createSelectButton, getTitle, getVideoUrls, main, sortByItag;
 
   getTitle = function() {
     return document.querySelector('h1').textContent.replace(/^\s*|\s*$/g, '');
   };
 
-  getMp3Url = function() {
-    return 'http://www.video2mp3.net/?url=' + location.href + '&hq=1';
-  };
-
   getVideoUrls = function() {
-    var data, i, itagOrder, itags, json, param, reg, val, _i, _len;
+    var data, reg;
     reg = new RegExp('(\\s+)?yt\.playerConfig\\s=\\s(.*?)\n');
     data = document.querySelector('html').textContent.match(reg)[2].replace(/;$/, '');
-    json = JSON.parse(data);
-    param = json.args.url_encoded_fmt_stream_map;
+    return JSON.parse(data).args.url_encoded_fmt_stream_map.split(',').map(function(param) {
+      var video;
+      video = {};
+      param.split("&").map(function(val) {
+        var key;
+        data = val.split("=");
+        key = data[0];
+        val = data[1];
+        switch (key) {
+          case "itag":
+            return video.itag = parseInt(val);
+          case "url":
+            return video.url = unescape(val);
+          case "sig":
+            return video.sig = val;
+          case "type":
+            return video.type = unescape(val).split("video/")[1].split(";")[0].replace("x-", "");
+          case "quality":
+            return video.quality = val;
+        }
+      });
+      return video;
+    });
+  };
+
+  sortByItag = function(videos) {
+    var i, itagOrder, itags, val, _i, _len;
     itags = '38 46 37 84 22 45 10 85 35 44 18 34 10 10 82 43 6 36 83 5 17 13'.split(/\s/);
     itagOrder = {};
     for (i = _i = 0, _len = itags.length; _i < _len; i = ++_i) {
       val = itags[i];
       itagOrder[val] = i;
     }
-    return param.split(',').map(function(val) {
-      return {
-        itag: parseInt(val.match(/&?itag=([0-9]+)&?/)[1]),
-        url: unescape(val.split(/&?url=(.*)&?/)[1]).replace('sig', 'signature'),
-        type: unescape(val).split(/&?type=/)[1].split(/&/)[0].replace(/video\/|x-/g, '').split(/;/)[0],
-        quality: val.split(/&quality=/)[1].split(/&/)[0]
-      };
-    }).sort(function(a, b) {
+    return videos.sort(function(a, b) {
       if (itagOrder[a.itag] === void 0) {
         a.itag = itags.length;
       }
@@ -54,24 +68,6 @@
 
   /*
   console.log(getVideoUrls());
-  */
-
-
-  /*
-  createButton = (text, link, target) ->
-    a = document.createElement('a')
-    a.href = link
-    a.className = 'yt-uix-button-content'
-    a.textContent = text
-    if target
-      a.setAttribute('target', '_blank')
-  
-    bt = document.createElement('button')
-    bt.className = 'yt-uix-tooltip-reverse yt-uix-button yt-uix-button-default yt-uix-tooltip yt-uix-button-empty'
-    bt.appendChild(a)
-  
-    elm = document.querySelector('#watch-actions')
-    elm.appendChild(bt)
   */
 
 
@@ -100,10 +96,10 @@
 
   main = function() {
     var vals;
-    vals = getVideoUrls().map(function(val) {
+    vals = sortByItag(getVideoUrls()).map(function(val) {
       return {
         text: val.type + '(' + val.quality + ')',
-        link: val.url + '&title=' + encodeURIComponent(getTitle())
+        link: val.url + "&signature=" + val.sig + '&title=' + encodeURIComponent(getTitle())
       };
     });
     return createSelectButton(vals);

@@ -12,24 +12,34 @@
 getTitle = ->
   document.querySelector('h1').textContent.replace(/^\s*|\s*$/g, '')
 
-getMp3Url = ->
-  'http://www.video2mp3.net/?url=' + location.href + '&hq=1'
-
 getVideoUrls = ->
   reg = new RegExp('(\\s+)?yt\.playerConfig\\s=\\s(.*?)\n')
   data = document.querySelector('html').textContent.match(reg)[2].replace(/;$/, '')
-  json = JSON.parse(data)
-  param = json.args.url_encoded_fmt_stream_map
-  itags = '38 46 37 84 22 45 10 85 35 44 18 34 10 10 82 43 6 36 83 5 17 13'.split(/\s/)
+  return JSON.parse(data).args.url_encoded_fmt_stream_map.split(',').map (param) ->
+    video = {}
+    param.split("&").map (val) ->
+      data = val.split "="
+      key = data[0]
+      val = data[1]
+      switch key
+        when "itag"
+          video.itag    = parseInt val
+        when "url"
+          video.url     = unescape val
+        when "sig"
+          video.sig     = val
+        when "type"
+          video.type    = unescape(val).split("video/")[1].split(";")[0].replace "x-", ""
+        when "quality"
+          video.quality = val
+    video
+
+sortByItag = (videos)->
+  itags = '38 46 37 84 22 45 10 85 35 44 18 34 10 10 82 43 6 36 83 5 17 13'.split /\s/
   itagOrder = {}
   for val, i in itags
     itagOrder[val] = i
-  param.split(',').map (val) ->
-    itag: parseInt(val.match(/&?itag=([0-9]+)&?/)[1]),
-    url: unescape(val.split(/&?url=(.*)&?/)[1]).replace('sig', 'signature'),
-    type: unescape(val).split(/&?type=/)[1].split(/&/)[0].replace(/video\/|x-/g, '').split(/;/)[0],
-    quality: val.split(/&quality=/)[1].split(/&/)[0]
-  .sort (a, b) ->
+  return videos.sort (a, b) ->
     if itagOrder[a.itag] is undefined
       a.itag = itags.length
     if itagOrder[b.itag] is undefined
@@ -38,24 +48,6 @@ getVideoUrls = ->
 
 ###
 console.log(getVideoUrls());
-###
-
-
-###
-createButton = (text, link, target) ->
-  a = document.createElement('a')
-  a.href = link
-  a.className = 'yt-uix-button-content'
-  a.textContent = text
-  if target
-    a.setAttribute('target', '_blank')
-
-  bt = document.createElement('button')
-  bt.className = 'yt-uix-tooltip-reverse yt-uix-button yt-uix-button-default yt-uix-tooltip yt-uix-button-empty'
-  bt.appendChild(a)
-
-  elm = document.querySelector('#watch-actions')
-  elm.appendChild(bt)
 ###
 
 createSelectButton = (vals) ->
@@ -80,9 +72,9 @@ createSelectButton = (vals) ->
   elm.appendChild(select)
 
 main = ->
-  vals = getVideoUrls().map (val) ->
+  vals = sortByItag(getVideoUrls()).map (val) ->
     text: val.type + '(' + val.quality + ')',
-    link: val.url + '&title=' + encodeURIComponent getTitle()
+    link: val.url + "&signature=" + val.sig+ '&title=' + encodeURIComponent getTitle()
 
   createSelectButton(vals)
 

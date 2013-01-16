@@ -4,30 +4,65 @@ require 'json'
 require 'uri'
 require 'pp'
 
-#VIDEO = 'http://www.youtube.com/watch?v=79vtRZSLvfw'
-VIDEO = 'http://www.youtube.com/watch?v=fezCVFzERac'
+VIDEO = %!
 
-def html
+http://www.youtube.com/watch?v=InzDjH1-9Ns
+
+!.strip
+
+def get_html
   open(VIDEO).read
 end
 
-def json
+def get_json
   reg = /(\s+)?yt\.playerConfig\s=\s(.*?)\n/
-  data = html.match(reg)[2].gsub(/;$/, '')
+  data = get_html.match(reg)[2].gsub(/;$/, '')
   JSON.parse data
 end
 
-def param
-  param = json['args']['url_encoded_fmt_stream_map']
-  param.split(',').map{|val|
-    {
-      itag: val.match(/&?itag=([0-9]+)&?/)[1].to_i,
-      url: URI.decode(val.split(/&?url=(.*)&?/)[1]).gsub('sig', 'signature'),
-      type: URI.decode(val).split(/&?type=/)[1].split(/&/)[0].gsub(/video\/|x-/, '').split(/;/)[0],
-      quality: val.split(/&quality=/)[1].split(/&/)[0]
-    }
-  }
+def get_param
+  get_json['args']['url_encoded_fmt_stream_map'].split(",")
 end
 
-pp param
+def get_result
+  result = []
+  get_param.each do |param|
+    video = { itag: nil, url: nil, sig: nil, type: nil, quality: nil, dl_url: nil }
+    param.split("&").each do |val|
+      key, val = val.split("=")
+      case key
+      when /itag/
+        video[:itag]    = val
+      when /url/
+        video[:url]     = URI.decode val
+      when /sig/
+        video[:sig]     = val
+      when /type/
+        video[:type]    = URI.decode(val).split("video/")[1].split(";").first
+      when /quality/
+        video[:quality] = val
+      end
+    end
+    video[:dl_url] = video[:url] + "&signature=" + video[:sig]
+    result << video
+  end
+  result
+end
+
+pp get_result
+
+__END__
+
+# Youtubeの動画を保存するスクリプト
+
+動画ページのhtml内のjsonからurl_encoded_fmt_stream_mapを抽出する。
+ビデオのフォーマットごとのデータがカンマ区切りで記述されている。
+カンマで分割してビデオごとのクエリ文字列を作る。
+クエリ文字列を&で分割すると以下のキーができる。
+  url sig type fallback itag
+urlの値をURI.decodeする
+sigの値をsignatureというキー名にしてurlと結合する。
+それが動画のURLなので、ブラウザからアクセスか、プログラムから取得するかで保存できる。
+
+
 
