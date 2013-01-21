@@ -5,7 +5,8 @@
 // @description Youtube Download Button Generator
 // @namespace   http://github.com/derekbailey
 // @include     http://www.youtube.com/watch*
-// @version     0.3
+// @include     https://www.youtube.com/watch*
+// @version     0.4
 // ==/UserScript==
 ###
 
