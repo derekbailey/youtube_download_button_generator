@@ -7,7 +7,7 @@
 // @namespace   http://github.com/derekbailey
 // @include     http://www.youtube.com/watch*
 // @include     https://www.youtube.com/watch*
-// @version     0.4
+// @version     0.5
 // ==/UserScript==
 */
 
@@ -21,8 +21,8 @@
 
   getVideoUrls = function() {
     var data, reg;
-    reg = new RegExp('(\\s+)?yt\.playerConfig\\s=\\s(.*?)\n');
-    data = document.querySelector('html').textContent.match(reg)[2].replace(/;$/, '');
+    reg = new RegExp('.*ytplayer\.config\\s=\\s(.*?);');
+    data = document.querySelector('html').textContent.match(reg)[1];
     return JSON.parse(data).args.url_encoded_fmt_stream_map.split(',').map(function(param) {
       var video;
       video = {};

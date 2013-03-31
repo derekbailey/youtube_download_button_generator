@@ -15,8 +15,8 @@ def get_html
 end
 
 def get_json
-  reg = /(\s+)?yt\.playerConfig\s=\s(.*?)\n/
-  data = get_html.match(reg)[2].gsub(/;$/, '')
+  reg = /.*ytplayer\.config\s=\s(.*?);/
+  data = get_html.match(reg)[1]
   JSON.parse data
 end
 
@@ -49,6 +49,9 @@ def get_result
   result
 end
 
+#pp get_html
+#pp get_json
+#pp get_param
 pp get_result
 
 __END__
