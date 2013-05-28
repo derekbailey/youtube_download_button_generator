@@ -6,7 +6,7 @@ require 'pp'
 
 VIDEO = %!
 
-http://www.youtube.com/watch?v=InzDjH1-9Ns
+http://www.youtube.com/watch?v=J-ZiPr1ryQU
 
 !.strip
 
@@ -15,8 +15,8 @@ def get_html
 end
 
 def get_json
-  reg = /.*ytplayer\.config\s=\s(.*?);/
-  data = get_html.match(reg)[1]
+  reg = /.*ytplayer\.config\s=\s(.*)/
+  data = get_html.match(reg)[1].split("</script>")[0].sub(/;$/, "")
   JSON.parse data
 end
 
@@ -49,7 +49,7 @@ def get_result
   result
 end
 
-#pp get_html
+#puts get_html
 #pp get_json
 #pp get_param
 pp get_result

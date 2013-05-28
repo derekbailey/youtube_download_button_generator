@@ -21,8 +21,8 @@
 
   getVideoUrls = function() {
     var data, reg;
-    reg = new RegExp('.*ytplayer\.config\\s=\\s(.*?);');
-    data = document.querySelector('html').textContent.match(reg)[1];
+    reg = /.*ytplayer\.config\s=\s(.*)/;
+    data = document.querySelector('html').textContent.match(reg)[1].split(";</script>")[0].replace(/;\s+?$/, "");
     return JSON.parse(data).args.url_encoded_fmt_stream_map.split(',').map(function(param) {
       var video;
       video = {};

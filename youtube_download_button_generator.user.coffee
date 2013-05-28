@@ -14,8 +14,8 @@ getTitle = ->
   document.querySelector('h1').textContent.replace(/^\s*|\s*$/g, '')
 
 getVideoUrls = ->
-  reg = new RegExp('.*ytplayer\.config\\s=\\s(.*?);')
-  data = document.querySelector('html').textContent.match(reg)[1]
+  reg = /.*ytplayer\.config\s=\s(.*)/
+  data = document.querySelector('html').textContent.match(reg)[1].split(";</script>")[0].replace(/;\s+?$/, "")
   return JSON.parse(data).args.url_encoded_fmt_stream_map.split(',').map (param) ->
     video = {}
     param.split("&").map (val) ->
