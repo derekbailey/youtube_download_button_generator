@@ -7,27 +7,31 @@
 // @namespace   http://github.com/derekbailey
 // @include     http://www.youtube.com/watch*
 // @include     https://www.youtube.com/watch*
-// @version     0.5
+// @version     0.7
 // ==/UserScript==
 */
 
 
 (function() {
-  var createSelectButton, getTitle, getVideoUrls, main, sortByItag;
+  var createSelectButton, getJson, getTitle, getVideoUrls, main, sortByItag;
 
   getTitle = function() {
-    return document.querySelector('h1').textContent.replace(/^\s*|\s*$/g, '');
+    return getJson().args.title;
   };
 
-  getVideoUrls = function() {
+  getJson = function() {
     var data, reg;
     reg = /.*ytplayer\.config\s=\s(.*)/;
     data = document.querySelector('html').textContent.match(reg)[1].split(";</script>")[0].replace(/;\s+?$/, "");
-    return JSON.parse(data).args.url_encoded_fmt_stream_map.split(',').map(function(param) {
+    return JSON.parse(data);
+  };
+
+  getVideoUrls = function() {
+    return getJson().args.url_encoded_fmt_stream_map.split(',').map(function(param) {
       var video;
       video = {};
       param.split("&").map(function(val) {
-        var key;
+        var data, key;
         data = val.split("=");
         key = data[0];
         val = data[1];

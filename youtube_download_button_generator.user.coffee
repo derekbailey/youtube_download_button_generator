@@ -6,17 +6,20 @@
 // @namespace   http://github.com/derekbailey
 // @include     http://www.youtube.com/watch*
 // @include     https://www.youtube.com/watch*
-// @version     0.5
+// @version     0.7
 // ==/UserScript==
 ###
 
 getTitle = ->
-  document.querySelector('h1').textContent.replace(/^\s*|\s*$/g, '')
+  getJson().args.title
 
-getVideoUrls = ->
+getJson = ->
   reg = /.*ytplayer\.config\s=\s(.*)/
   data = document.querySelector('html').textContent.match(reg)[1].split(";</script>")[0].replace(/;\s+?$/, "")
-  return JSON.parse(data).args.url_encoded_fmt_stream_map.split(',').map (param) ->
+  JSON.parse(data)
+
+getVideoUrls = ->
+  return getJson().args.url_encoded_fmt_stream_map.split(',').map (param) ->
     video = {}
     param.split("&").map (val) ->
       data = val.split "="

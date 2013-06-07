@@ -49,10 +49,15 @@ def get_result
   result
 end
 
+def get_title
+  get_json["args"]["title"]
+end
+
 #puts get_html
 #pp get_json
 #pp get_param
-pp get_result
+#pp get_result
+puts get_title
 
 __END__
 
@@ -72,6 +77,4 @@ sigの値をsignatureというキー名にしてurlと結合する。
 ・プログラムの修正
 ・グリモンヘッダーのバージョンを更新
 ・readme.mdにバージョンを追加
-
-
 
